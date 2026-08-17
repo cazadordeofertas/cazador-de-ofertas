@@ -3,250 +3,758 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cazador de Ofertas Chile</title>
-
+  <meta name="description" content="Cazador de Ofertas Chile: compara precios, detecta oportunidades y crea alertas para comprar en el mejor momento.">
+  <title>Cazador de Ofertas | Compra al mejor precio</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --ink: #111827;
+      --muted: #667085;
+      --line: #e5e7eb;
+      --navy: #101828;
+      --navy-2: #182230;
+      --orange: #ff9f1c;
+      --orange-2: #ffb84d;
+      --green: #12b76a;
+      --red: #f04438;
+      --shadow: 0 18px 50px rgba(16,24,40,.10);
+      --radius: 22px;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      color: #222;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .top-note {
+      background: #fff7e8;
+      color: #7a4b00;
+      border-bottom: 1px solid #ffe1ad;
+      text-align: center;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     header {
-      background: #111827;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(16,24,40,.96);
       color: white;
-      padding: 18px 7%;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav {
+      max-width: 1180px;
+      margin: auto;
+      min-height: 72px;
+      padding: 0 22px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      gap: 22px;
     }
-
-    .logo {
-      font-size: 26px;
-      font-weight: bold;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 900;
+      letter-spacing: -.4px;
+      font-size: 20px;
+      white-space: nowrap;
     }
-
-    .logo span {
-      color: #f59e0b;
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--orange), #ff7a00);
+      box-shadow: 0 8px 24px rgba(255,159,28,.32);
+    }
+    .brand span { color: var(--orange-2); }
+    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; color: #d0d5dd; }
+    .nav-links a:hover { color: white; }
+    .nav-cta {
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-weight: 800;
     }
 
     .hero {
-      padding: 70px 7%;
-      text-align: center;
-      background: linear-gradient(135deg, #111827, #1f2937);
-      color: white;
-    }
-
-    .hero h1 {
-      font-size: 44px;
-      margin-bottom: 15px;
-    }
-
-    .hero p {
-      font-size: 19px;
-      max-width: 720px;
-      margin: auto;
-      line-height: 1.5;
-    }
-
-    .buscador {
-      max-width: 750px;
-      margin: 35px auto 0;
-      display: flex;
-      background: white;
-      border-radius: 12px;
+      position: relative;
       overflow: hidden;
+      color: white;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255,159,28,.22), transparent 28%),
+        radial-gradient(circle at 84% 15%, rgba(255,255,255,.09), transparent 24%),
+        linear-gradient(135deg, #101828 0%, #182230 58%, #0b1220 100%);
     }
-
-    .buscador input {
-      flex: 1;
-      border: none;
-      padding: 18px;
-      font-size: 17px;
-      outline: none;
-    }
-
-    .buscador button {
-      border: none;
-      background: #f59e0b;
-      padding: 0 28px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    section {
-      padding: 55px 7%;
-    }
-
-    .titulo {
-      text-align: center;
-      margin-bottom: 35px;
-    }
-
-    .titulo h2 {
-      font-size: 30px;
-      margin-bottom: 10px;
-    }
-
-    .tarjetas {
-      max-width: 1100px;
+    .hero-inner {
+      max-width: 1180px;
       margin: auto;
+      padding: 82px 22px 76px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 54px;
+      align-items: center;
     }
-
-    .tarjeta {
-      background: white;
-      padding: 28px;
-      border-radius: 15px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.08);
-      text-align: center;
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,159,28,.14);
+      color: #ffd391;
+      border: 1px solid rgba(255,184,77,.28);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 20px;
     }
-
-    .tarjeta .icono {
-      font-size: 40px;
-      margin-bottom: 15px;
-    }
-
-    .tarjeta h3 {
-      margin-bottom: 10px;
-    }
-
-    .alerta {
-      background: #f59e0b;
-      text-align: center;
-      padding: 55px 7%;
-    }
-
-    .alerta h2 {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    .alerta p {
-      font-size: 18px;
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 68px);
+      line-height: .98;
+      letter-spacing: -2.6px;
+      max-width: 760px;
       margin-bottom: 22px;
     }
-
-    .alerta button {
-      background: #111827;
-      color: white;
-      border: none;
-      border-radius: 9px;
-      padding: 15px 28px;
-      font-size: 17px;
-      cursor: pointer;
+    .hero h1 em { color: var(--orange-2); font-style: normal; }
+    .hero-copy {
+      color: #d0d5dd;
+      font-size: 18px;
+      max-width: 690px;
+      margin-bottom: 28px;
+    }
+    .search-box {
+      background: white;
+      border-radius: 18px;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      box-shadow: 0 24px 55px rgba(0,0,0,.26);
+      max-width: 760px;
+    }
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      padding: 15px 16px;
+      color: var(--ink);
+      border-radius: 12px;
+      font-size: 16px;
+    }
+    .primary-btn {
+      border: 0;
+      background: linear-gradient(135deg, var(--orange), #ff7f11);
+      color: #111827;
+      font-weight: 900;
+      padding: 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 22px rgba(255,159,28,.28);
+    }
+    .primary-btn:hover { transform: translateY(-1px); }
+    .quick-searches { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 15px; }
+    .chip {
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: #e4e7ec;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
     }
 
-    footer {
-      background: #111827;
-      color: #ccc;
+    .hero-panel {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: 0 28px 70px rgba(0,0,0,.28);
+    }
+    .hero-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .live-badge { color: #a7f3d0; font-size: 12px; font-weight: 800; }
+    .mini-deal {
+      background: white;
+      color: var(--ink);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    .product-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      font-size: 29px;
+      background: #f2f4f7;
+    }
+    .mini-deal small { color: var(--muted); }
+    .mini-deal strong { display: block; margin: 2px 0; }
+    .deal-price { text-align: right; }
+    .deal-price del { display: block; color: #98a2b3; font-size: 12px; }
+    .deal-price b { color: var(--green); font-size: 20px; }
+    .panel-stats {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .stat {
+      background: rgba(255,255,255,.07);
+      border-radius: 14px;
+      padding: 14px;
       text-align: center;
-      padding: 25px;
+    }
+    .stat b { display: block; font-size: 18px; color: white; }
+    .stat span { color: #98a2b3; font-size: 11px; }
+
+    .trust-strip { background: white; border-bottom: 1px solid var(--line); }
+    .trust-inner {
+      max-width: 1180px;
+      margin: auto;
+      padding: 18px 22px;
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 14px;
+    }
+    .trust-item { display: flex; align-items: center; gap: 10px; color: #475467; font-size: 13px; font-weight: 700; }
+    .trust-item i { font-style: normal; font-size: 20px; }
+
+    main section { padding: 72px 22px; }
+    .container { max-width: 1180px; margin: auto; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .section-head h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -1.2px; }
+    .section-head p { color: var(--muted); margin-top: 7px; max-width: 650px; }
+    .demo-tag { background: #fff7e8; color: #8a5500; border: 1px solid #ffe1ad; border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .toolbar button, .toolbar select {
+      border: 1px solid var(--line);
+      background: white;
+      color: #344054;
+      padding: 10px 13px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .toolbar button.active { background: var(--navy); color: white; border-color: var(--navy); }
+    .toolbar select { margin-left: auto; }
+
+    .deals-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+    .deal-card {
+      background: var(--surface);
+      border: 1px solid #eaecf0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(16,24,40,.06);
+      transition: .2s ease;
+    }
+    .deal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .deal-visual {
+      position: relative;
+      min-height: 175px;
+      display: grid;
+      place-items: center;
+      font-size: 76px;
+      background: linear-gradient(135deg, #f8fafc, #eef2f6);
+    }
+    .discount {
+      position: absolute;
+      top: 13px;
+      left: 13px;
+      background: #ecfdf3;
+      color: #027a48;
+      border: 1px solid #abefc6;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .store {
+      position: absolute;
+      right: 13px;
+      top: 13px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #475467;
+    }
+    .deal-body { padding: 18px; }
+    .category { color: #667085; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px; }
+    .deal-body h3 { font-size: 16px; min-height: 48px; margin: 6px 0 13px; }
+    .price-row { display: flex; align-items: end; justify-content: space-between; gap: 8px; }
+    .old-price { color: #98a2b3; font-size: 12px; text-decoration: line-through; }
+    .price { display: block; font-size: 25px; letter-spacing: -.8px; }
+    .quality { font-size: 11px; color: var(--green); font-weight: 900; }
+    .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+    .card-actions button {
+      border-radius: 11px;
+      padding: 11px 9px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .outline-btn { background: white; border: 1px solid #d0d5dd; color: #344054; }
+    .dark-btn { background: var(--navy); color: white; border: 1px solid var(--navy); }
+
+    .how { background: white; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 18px;
+      margin-top: 30px;
+    }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px;
+      background: #fcfcfd;
+    }
+    .step-num {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: #fff1dc;
+      color: #9a5c00;
+      font-weight: 900;
+      margin-bottom: 17px;
+    }
+    .step h3 { margin-bottom: 8px; }
+    .step p { color: var(--muted); font-size: 14px; }
+
+    .alert-section {
+      padding-top: 0;
+    }
+    .alert-box {
+      background: linear-gradient(135deg, #ffae35, #ff8a00);
+      border-radius: 30px;
+      padding: 44px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 30px;
+      align-items: center;
+      box-shadow: 0 22px 60px rgba(255,138,0,.24);
+    }
+    .alert-box h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1; letter-spacing: -1.5px; margin-bottom: 14px; }
+    .alert-box p { color: #4f3300; max-width: 650px; }
+    .alert-form {
+      background: rgba(255,255,255,.96);
+      padding: 16px;
+      border-radius: 18px;
+      display: flex;
+      gap: 8px;
+    }
+    .alert-form input { flex: 1; min-width: 0; border: 0; outline: 0; padding: 13px; border-radius: 11px; background: #f8fafc; }
+    .alert-form button { border: 0; background: var(--navy); color: white; padding: 12px 16px; border-radius: 11px; font-weight: 900; }
+    .alert-note { font-size: 11px; margin-top: 8px; color: #704300; }
+
+    .sources {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .source {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 900;
+      color: #475467;
     }
 
-    @media(max-width: 600px) {
-      .hero h1 {
-        font-size: 32px;
-      }
+    .empty-state {
+      grid-column: 1 / -1;
+      background: white;
+      border: 1px dashed #d0d5dd;
+      border-radius: 18px;
+      padding: 38px;
+      text-align: center;
+      color: var(--muted);
+      display: none;
+    }
 
-      .buscador {
-        flex-direction: column;
-      }
+    footer { background: #0b1220; color: #98a2b3; }
+    .footer-inner {
+      max-width: 1180px;
+      margin: auto;
+      padding: 38px 22px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .footer-brand { color: white; font-weight: 900; }
 
-      .buscador button {
-        padding: 17px;
-      }
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 100;
+      background: var(--navy);
+      color: white;
+      padding: 14px 17px;
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      max-width: 360px;
+      transform: translateY(140%);
+      transition: .25s ease;
+      font-size: 13px;
+    }
+    .toast.show { transform: translateY(0); }
+
+    @media (max-width: 980px) {
+      .hero-inner, .alert-box { grid-template-columns: 1fr; }
+      .hero-panel { max-width: 650px; }
+      .deals-grid { grid-template-columns: repeat(2,1fr); }
+      .steps { grid-template-columns: repeat(2,1fr); }
+      .trust-inner { grid-template-columns: repeat(2,1fr); }
+      .sources { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 700px) {
+      .nav-links a { display: none; }
+      .nav { min-height: 64px; }
+      .hero-inner { padding-top: 58px; gap: 38px; }
+      .hero h1 { letter-spacing: -1.6px; }
+      .search-box, .alert-form { flex-direction: column; }
+      .search-box button, .alert-form button { width: 100%; }
+      .panel-stats { grid-template-columns: 1fr; }
+      .trust-inner, .deals-grid, .steps, .sources { grid-template-columns: 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .toolbar select { margin-left: 0; width: 100%; }
+      .alert-box { padding: 28px 22px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
-
 <body>
+  <div class="top-note">Versión beta · Las ofertas mostradas abajo son ejemplos visuales mientras conectamos fuentes reales.</div>
 
-<header>
-  <div class="logo">🎯 Cazador de <span>Ofertas</span></div>
-  <div>Chile 🇨🇱</div>
-</header>
+  <header>
+    <nav class="nav">
+      <a class="brand" href="#inicio"><span class="brand-mark">🎯</span> Cazador de <span>Ofertas</span></a>
+      <div class="nav-links">
+        <a href="#ofertas">Ofertas</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#fuentes">Tiendas</a>
+        <button class="nav-cta" onclick="focusAlert()">🔔 Crear alerta</button>
+      </div>
+    </nav>
+  </header>
 
-<div class="hero">
-  <h1>Encuentra el mejor precio antes de comprar</h1>
+  <section class="hero" id="inicio">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">⚡ Tu radar de precios en Chile</div>
+        <h1>No compres caro. <em>Caza el mejor precio.</em></h1>
+        <p class="hero-copy">Busca un producto, compara oportunidades y deja que Cazador de Ofertas te ayude a decidir cuándo conviene comprar.</p>
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="Ej: PlayStation 5, Smart TV, notebook..." autocomplete="off">
+          <button class="primary-btn" onclick="searchDeals()">Buscar ofertas</button>
+        </div>
+        <div class="quick-searches">
+          <button class="chip" onclick="quickSearch('PlayStation')">PlayStation 5</button>
+          <button class="chip" onclick="quickSearch('Smart TV')">Smart TV</button>
+          <button class="chip" onclick="quickSearch('Notebook')">Notebook</button>
+          <button class="chip" onclick="quickSearch('Celular')">Celulares</button>
+        </div>
+      </div>
 
-  <p>
-    Buscamos ofertas y precios en diferentes tiendas para ayudarte
-    a comprar en el momento correcto.
-  </p>
+      <aside class="hero-panel" aria-label="Ejemplo de detección de oferta">
+        <div class="hero-panel-head">
+          <strong>Ejemplo de oportunidad detectada</strong>
+          <span class="live-badge">● DEMO</span>
+        </div>
+        <div class="mini-deal">
+          <div class="product-icon">🎮</div>
+          <div>
+            <small>Videojuegos</small>
+            <strong>PlayStation 5 Slim</strong>
+            <small>Precio ilustrativo</small>
+          </div>
+          <div class="deal-price"><del>$649.990</del><b>$499.990</b></div>
+        </div>
+        <div class="panel-stats">
+          <div class="stat"><b>-23%</b><span>descuento demo</span></div>
+          <div class="stat"><b>4</b><span>tiendas previstas</span></div>
+          <div class="stat"><b>🔔</b><span>alertas futuras</span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
 
-  <div class="buscador">
-    <input type="text" placeholder="¿Qué producto estás buscando? Ej: PlayStation 5">
-    <button onclick="buscar()">Buscar oferta</button>
+  <div class="trust-strip">
+    <div class="trust-inner">
+      <div class="trust-item"><i>🔎</i><span>Comparación simple</span></div>
+      <div class="trust-item"><i>📉</i><span>Seguimiento de precios</span></div>
+      <div class="trust-item"><i>🔔</i><span>Alertas cuando convenga</span></div>
+      <div class="trust-item"><i>🇨🇱</i><span>Pensado para Chile</span></div>
+    </div>
   </div>
-</div>
 
-<section>
-  <div class="titulo">
-    <h2>¿Cómo funcionará Cazador de Ofertas?</h2>
-    <p>Nosotros buscamos. Tú decides cuándo comprar.</p>
-  </div>
+  <main>
+    <section id="ofertas">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Ofertas destacadas</h2>
+            <p>Esta sección ya muestra cómo se verán los resultados reales: precio anterior, precio actual, descuento, tienda y acceso a una alerta.</p>
+          </div>
+          <span class="demo-tag">DATOS DE EJEMPLO</span>
+        </div>
 
-  <div class="tarjetas">
+        <div class="toolbar">
+          <button class="active" data-category="all" onclick="filterCategory(this,'all')">Todos</button>
+          <button data-category="gaming" onclick="filterCategory(this,'gaming')">Gaming</button>
+          <button data-category="tv" onclick="filterCategory(this,'tv')">TV</button>
+          <button data-category="computacion" onclick="filterCategory(this,'computacion')">Computación</button>
+          <button data-category="celulares" onclick="filterCategory(this,'celulares')">Celulares</button>
+          <select id="sortSelect" onchange="sortDeals()" aria-label="Ordenar ofertas">
+            <option value="discount">Mayor descuento</option>
+            <option value="priceAsc">Menor precio</option>
+            <option value="priceDesc">Mayor precio</option>
+          </select>
+        </div>
 
-    <div class="tarjeta">
-      <div class="icono">🔎</div>
-      <h3>Busca un producto</h3>
-      <p>Escribe lo que quieres comprar y compara oportunidades.</p>
+        <div class="deals-grid" id="dealsGrid">
+          <article class="deal-card" data-category="gaming" data-name="PlayStation 5 Slim PS5 consola gaming" data-price="499990" data-discount="23">
+            <div class="deal-visual"><span class="discount">-23%</span><span class="store">Mercado Libre*</span>🎮</div>
+            <div class="deal-body">
+              <span class="category">Gaming</span>
+              <h3>PlayStation 5 Slim</h3>
+              <div class="price-row"><div><span class="old-price">$649.990</span><strong class="price">$499.990</strong></div><span class="quality">Buena señal</span></div>
+              <div class="card-actions"><button class="outline-btn" onclick="createAlert('PlayStation 5 Slim')">🔔 Alerta</button><button class="dark-btn" onclick="demoOffer()">Ver oferta</button></div>
+            </div>
+          </article>
+
+          <article class="deal-card" data-category="tv" data-name="Smart TV 65 pulgadas 4K television" data-price="429990" data-discount="28">
+            <div class="deal-visual"><span class="discount">-28%</span><span class="store">Falabella*</span>📺</div>
+            <div class="deal-body">
+              <span class="category">TV & Hogar</span>
+              <h3>Smart TV 65” 4K</h3>
+              <div class="price-row"><div><span class="old-price">$599.990</span><strong class="price">$429.990</strong></div><span class="quality">Buena señal</span></div>
+              <div class="card-actions"><button class="outline-btn" onclick="createAlert('Smart TV 65 pulgadas 4K')">🔔 Alerta</button><button class="dark-btn" onclick="demoOffer()">Ver oferta</button></div>
+            </div>
+          </article>
+
+          <article class="deal-card" data-category="computacion" data-name="Notebook 15 pulgadas Ryzen computador laptop" data-price="389990" data-discount="22">
+            <div class="deal-visual"><span class="discount">-22%</span><span class="store">Paris*</span>💻</div>
+            <div class="deal-body">
+              <span class="category">Computación</span>
+              <h3>Notebook 15” Ryzen</h3>
+              <div class="price-row"><div><span class="old-price">$499.990</span><strong class="price">$389.990</strong></div><span class="quality">Oportunidad</span></div>
+              <div class="card-actions"><button class="outline-btn" onclick="createAlert('Notebook 15 Ryzen')">🔔 Alerta</button><button class="dark-btn" onclick="demoOffer()">Ver oferta</button></div>
+            </div>
+          </article>
+
+          <article class="deal-card" data-category="celulares" data-name="Celular smartphone 5G telefono" data-price="299990" data-discount="25">
+            <div class="deal-visual"><span class="discount">-25%</span><span class="store">Ripley*</span>📱</div>
+            <div class="deal-body">
+              <span class="category">Celulares</span>
+              <h3>Smartphone 5G 256 GB</h3>
+              <div class="price-row"><div><span class="old-price">$399.990</span><strong class="price">$299.990</strong></div><span class="quality">Buena señal</span></div>
+              <div class="card-actions"><button class="outline-btn" onclick="createAlert('Smartphone 5G 256 GB')">🔔 Alerta</button><button class="dark-btn" onclick="demoOffer()">Ver oferta</button></div>
+            </div>
+          </article>
+
+          <div class="empty-state" id="emptyState">No encontramos coincidencias en los productos de demostración. Más adelante esta búsqueda consultará ofertas reales.</div>
+        </div>
+        <p style="margin-top:14px;color:#98a2b3;font-size:11px">* Los nombres de tiendas indican fuentes que queremos integrar. No implican afiliación, patrocinio ni disponibilidad real de los precios mostrados.</p>
+      </div>
+    </section>
+
+    <section class="how" id="como-funciona">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Comprar mejor, en cuatro pasos</h2>
+            <p>La ventaja de Cazador de Ofertas será ayudarte a evitar comprar por impulso cuando el precio todavía puede mejorar.</p>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step"><div class="step-num">01</div><h3>Busca</h3><p>Escribe el producto que quieres comprar.</p></div>
+          <div class="step"><div class="step-num">02</div><h3>Compara</h3><p>Revisamos distintas fuentes y ordenamos las oportunidades.</p></div>
+          <div class="step"><div class="step-num">03</div><h3>Decide</h3><p>Evalúa precio, descuento y señal de conveniencia.</p></div>
+          <div class="step"><div class="step-num">04</div><h3>Activa una alerta</h3><p>Si aún no conviene, podrás esperar una mejor oportunidad.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alert-section" id="alertas">
+      <div class="container">
+        <div class="alert-box">
+          <div>
+            <h2>¿No está al precio que quieres?</h2>
+            <p>Escribe el producto y deja preparada una alerta. En la siguiente etapa conectaremos este formulario a una base de datos y un sistema de notificaciones reales.</p>
+          </div>
+          <div>
+            <div class="alert-form">
+              <input id="alertInput" placeholder="Ej: PlayStation 5 por menos de $450.000">
+              <button onclick="saveDemoAlert()">Crear alerta</button>
+            </div>
+            <div class="alert-note">Por ahora la alerta se guarda solo como demostración en este navegador y no envía notificaciones.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fuentes">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Fuentes que queremos integrar</h2>
+            <p>La arquitectura está preparada para ir conectando tiendas y marketplaces de manera gradual, usando APIs, feeds o integraciones permitidas.</p>
+          </div>
+        </div>
+        <div class="sources">
+          <div class="source">Mercado Libre</div>
+          <div class="source">Falabella</div>
+          <div class="source">Paris</div>
+          <div class="source">Ripley</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div><span class="footer-brand">🎯 Cazador de Ofertas</span><br>Busca. Compara. Espera el momento correcto.</div>
+      <div>© 2026 Cazador de Ofertas · Chile · Versión beta</div>
     </div>
+  </footer>
 
-    <div class="tarjeta">
-      <div class="icono">💰</div>
-      <h3>Compara precios</h3>
-      <p>Revisaremos precios y ofertas disponibles en distintas tiendas.</p>
-    </div>
+  <div class="toast" id="toast"></div>
 
-    <div class="tarjeta">
-      <div class="icono">🔔</div>
-      <h3>Crea una alerta</h3>
-      <p>Si hoy no está barato, podrás recibir un aviso cuando aparezca una buena oferta.</p>
-    </div>
+  <script>
+    let activeCategory = 'all';
 
-    <div class="tarjeta">
-      <div class="icono">🏆</div>
-      <h3>Compra mejor</h3>
-      <p>Te ayudaremos a identificar una de las mejores oportunidades disponibles.</p>
-    </div>
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
 
-  </div>
-</section>
+    function normalize(text) {
+      return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
 
-<div class="alerta">
-  <h2>¿Esperando que baje de precio?</h2>
+    function searchDeals() {
+      const query = normalize(document.getElementById('searchInput').value.trim());
+      const cards = [...document.querySelectorAll('.deal-card')];
+      let visible = 0;
 
-  <p>
-    Cazador de Ofertas podrá avisarte cuando encontremos una oportunidad
-    para el producto que buscas.
-  </p>
+      cards.forEach(card => {
+        const matchesText = !query || normalize(card.dataset.name).includes(query);
+        const matchesCategory = activeCategory === 'all' || card.dataset.category === activeCategory;
+        const show = matchesText && matchesCategory;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
 
-  <button onclick="alert('Muy pronto podrás crear alertas de precios.')">
-    🔔 Crear alerta de precio
-  </button>
-</div>
+      document.getElementById('emptyState').style.display = visible ? 'none' : 'block';
+      document.getElementById('ofertas').scrollIntoView({ behavior: 'smooth' });
+    }
 
-<footer>
-  © 2026 Cazador de Ofertas · Chile
-</footer>
+    function quickSearch(term) {
+      document.getElementById('searchInput').value = term;
+      activeCategory = 'all';
+      document.querySelectorAll('.toolbar button[data-category]').forEach(btn => btn.classList.toggle('active', btn.dataset.category === 'all'));
+      searchDeals();
+    }
 
-<script>
-function buscar() {
-  alert("¡Excelente! En la siguiente etapa conectaremos el buscador con ofertas reales.");
-}
-</script>
+    function filterCategory(button, category) {
+      activeCategory = category;
+      document.querySelectorAll('.toolbar button[data-category]').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      searchDeals();
+    }
 
+    function sortDeals() {
+      const grid = document.getElementById('dealsGrid');
+      const cards = [...grid.querySelectorAll('.deal-card')];
+      const mode = document.getElementById('sortSelect').value;
+
+      cards.sort((a,b) => {
+        if (mode === 'priceAsc') return Number(a.dataset.price) - Number(b.dataset.price);
+        if (mode === 'priceDesc') return Number(b.dataset.price) - Number(a.dataset.price);
+        return Number(b.dataset.discount) - Number(a.dataset.discount);
+      });
+
+      cards.forEach(card => grid.insertBefore(card, document.getElementById('emptyState')));
+    }
+
+    function createAlert(product) {
+      document.getElementById('alertInput').value = product;
+      document.getElementById('alertas').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => document.getElementById('alertInput').focus(), 500);
+    }
+
+    function focusAlert() {
+      document.getElementById('alertas').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => document.getElementById('alertInput').focus(), 500);
+    }
+
+    function saveDemoAlert() {
+      const input = document.getElementById('alertInput');
+      const value = input.value.trim();
+      if (!value) {
+        showToast('Escribe primero el producto o precio que quieres vigilar.');
+        input.focus();
+        return;
+      }
+      const saved = JSON.parse(localStorage.getItem('cazadorDemoAlerts') || '[]');
+      saved.push({ text: value, createdAt: new Date().toISOString() });
+      localStorage.setItem('cazadorDemoAlerts', JSON.stringify(saved));
+      showToast('🔔 Alerta demo guardada. El próximo paso será convertirla en una notificación real.');
+      input.value = '';
+    }
+
+    function demoOffer() {
+      showToast('Esta oferta es demostrativa. Próximamente este botón abrirá la publicación real de la tienda.');
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', event => {
+      if (event.key === 'Enter') searchDeals();
+    });
+  </script>
 </body>
 </html>
