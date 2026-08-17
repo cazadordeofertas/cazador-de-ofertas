@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cazador de Ofertas Chile</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      color: #222;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #f59e0b;
+    }
+
+    .hero {
+      padding: 70px 7%;
+      text-align: center;
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 44px;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 19px;
+      max-width: 720px;
+      margin: auto;
+      line-height: 1.5;
+    }
+
+    .buscador {
+      max-width: 750px;
+      margin: 35px auto 0;
+      display: flex;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .buscador input {
+      flex: 1;
+      border: none;
+      padding: 18px;
+      font-size: 17px;
+      outline: none;
+    }
+
+    .buscador button {
+      border: none;
+      background: #f59e0b;
+      padding: 0 28px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    section {
+      padding: 55px 7%;
+    }
+
+    .titulo {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .titulo h2 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .tarjetas {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .tarjeta {
+      background: white;
+      padding: 28px;
+      border-radius: 15px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+      text-align: center;
+    }
+
+    .tarjeta .icono {
+      font-size: 40px;
+      margin-bottom: 15px;
+    }
+
+    .tarjeta h3 {
+      margin-bottom: 10px;
+    }
+
+    .alerta {
+      background: #f59e0b;
+      text-align: center;
+      padding: 55px 7%;
+    }
+
+    .alerta h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .alerta p {
+      font-size: 18px;
+      margin-bottom: 22px;
+    }
+
+    .alerta button {
+      background: #111827;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      padding: 15px 28px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    footer {
+      background: #111827;
+      color: #ccc;
+      text-align: center;
+      padding: 25px;
+    }
+
+    @media(max-width: 600px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .buscador {
+        flex-direction: column;
+      }
+
+      .buscador button {
+        padding: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎯 Cazador de <span>Ofertas</span></div>
+  <div>Chile 🇨🇱</div>
+</header>
+
+<div class="hero">
+  <h1>Encuentra el mejor precio antes de comprar</h1>
+
+  <p>
+    Buscamos ofertas y precios en diferentes tiendas para ayudarte
+    a comprar en el momento correcto.
+  </p>
+
+  <div class="buscador">
+    <input type="text" placeholder="¿Qué producto estás buscando? Ej: PlayStation 5">
+    <button onclick="buscar()">Buscar oferta</button>
+  </div>
+</div>
+
+<section>
+  <div class="titulo">
+    <h2>¿Cómo funcionará Cazador de Ofertas?</h2>
+    <p>Nosotros buscamos. Tú decides cuándo comprar.</p>
+  </div>
+
+  <div class="tarjetas">
+
+    <div class="tarjeta">
+      <div class="icono">🔎</div>
+      <h3>Busca un producto</h3>
+      <p>Escribe lo que quieres comprar y compara oportunidades.</p>
+    </div>
+
+    <div class="tarjeta">
+      <div class="icono">💰</div>
+      <h3>Compara precios</h3>
+      <p>Revisaremos precios y ofertas disponibles en distintas tiendas.</p>
+    </div>
+
+    <div class="tarjeta">
+      <div class="icono">🔔</div>
+      <h3>Crea una alerta</h3>
+      <p>Si hoy no está barato, podrás recibir un aviso cuando aparezca una buena oferta.</p>
+    </div>
+
+    <div class="tarjeta">
+      <div class="icono">🏆</div>
+      <h3>Compra mejor</h3>
+      <p>Te ayudaremos a identificar una de las mejores oportunidades disponibles.</p>
+    </div>
+
+  </div>
+</section>
+
+<div class="alerta">
+  <h2>¿Esperando que baje de precio?</h2>
+
+  <p>
+    Cazador de Ofertas podrá avisarte cuando encontremos una oportunidad
+    para el producto que buscas.
+  </p>
+
+  <button onclick="alert('Muy pronto podrás crear alertas de precios.')">
+    🔔 Crear alerta de precio
+  </button>
+</div>
+
+<footer>
+  © 2026 Cazador de Ofertas · Chile
+</footer>
+
+<script>
+function buscar() {
+  alert("¡Excelente! En la siguiente etapa conectaremos el buscador con ofertas reales.");
+}
+</script>
+
+</body>
+</html>
