@@ -1,81 +1,75 @@
-// CAZADOR 1.0 · Producto Maestro + Inteligencia
+// CAZADOR 1.0 · Producto Maestro + Inteligencia + Autocompletado + Categorías
 (function(){
   const decisionIcon=r=>r==='COMPRAR AHORA'?'🔥':r==='MUY BUENA OPORTUNIDAD'?'🟢':r==='BUENA OPORTUNIDAD'?'🟢':r==='MEJOR ESPERAR'?'🔴':r==='PRECIO NORMAL'?'🟡':'👀';
   const scoreTone=n=>Number(n)>=80?'#027a48':Number(n)>=55?'#b54708':'#b42318';
+  let categoryCache=[],suggestTimer=null,allCategories=false;
+
+  const css=document.createElement('style');
+  css.textContent=`
+    .cazCategories{background:#fff;border-bottom:1px solid #e4e7ec;padding:28px 22px}.cazCategoriesIn{max-width:1180px;margin:auto}.cazCategoriesHead{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:14px}.cazCategoriesHead h2{font-size:21px}.cazCategoriesHead button{border:0;background:transparent;color:#b54708;font-weight:900}.cazCategoryGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}.cazCategory{border:1px solid #e4e7ec;background:#fff;border-radius:15px;padding:13px 8px;text-align:center;font-size:12px;font-weight:850;color:#344054;transition:.15s}.cazCategory:hover{border-color:#ffb84d;background:#fffaf2;transform:translateY(-1px)}.cazCategory span{display:block;font-size:24px;margin-bottom:5px}.cazCategory small{display:block;color:#98a2b3;font-size:10px;margin-top:3px;font-weight:700}
+    #cazadorSuggest{display:none;position:absolute;left:8px;right:8px;top:calc(100% + 7px);z-index:80;background:#fff;color:#101828;border:1px solid #e4e7ec;border-radius:16px;box-shadow:0 20px 50px rgba(16,24,40,.18);overflow:hidden;text-align:left}#cazadorSuggest.show{display:block}.suggestTitle{padding:9px 13px 5px;color:#667085;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.6px}.suggestItem{width:100%;border:0;background:#fff;padding:10px 13px;display:flex;align-items:center;gap:10px;text-align:left;color:#101828}.suggestItem:hover,.suggestItem.active{background:#f8fafc}.suggestThumb{width:38px;height:38px;border-radius:9px;background:#f2f4f7;object-fit:contain}.suggestIcon{width:38px;height:38px;border-radius:9px;background:#fff7e8;display:grid;place-items:center;font-size:20px}.suggestText{min-width:0}.suggestText b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.suggestText small{display:block;color:#667085;font-size:11px}.masterCategory{display:inline-flex;align-items:center;gap:5px;background:#f2f4f7;color:#475467;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900;margin-bottom:7px}
+    @media(max-width:980px){.cazCategoryGrid{grid-template-columns:repeat(4,1fr)}}@media(max-width:600px){.cazCategories{padding:22px 14px}.cazCategoryGrid{grid-template-columns:repeat(2,1fr)}.cazCategoriesHead{align-items:flex-start}.cazCategoriesHead h2{font-size:18px}}
+  `;
+  document.head.appendChild(css);
+
   function ensureProductId(){
-    if(!document.querySelector('#watchProductId')){
-      const el=document.createElement('input');el.type='hidden';el.id='watchProductId';document.querySelector('.watchPanel')?.appendChild(el);
-    }
-    const note=document.querySelector('.watchNote');
-    if(note) note.textContent='El seguimiento queda asociado al Producto Maestro. Los canales de aviso se activan cuando su proveedor correspondiente está conectado.';
+    if(!document.querySelector('#watchProductId')){const el=document.createElement('input');el.type='hidden';el.id='watchProductId';document.querySelector('.watchPanel')?.appendChild(el)}
+    const note=document.querySelector('.watchNote');if(note)note.textContent='El seguimiento queda asociado al Producto Maestro. Los canales de aviso se activan cuando su proveedor correspondiente está conectado.';
   }
   ensureProductId();
 
   function masterCard(p,idx){
-    const offers=p.offers||[], priced=offers.filter(o=>Number(o.current_price)>0);
-    const best=priced[0]||offers[0]||{};
+    const offers=p.offers||[],priced=offers.filter(o=>Number(o.current_price)>0),best=priced[0]||offers[0]||{};
     const image=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.canonical_name)}" loading="lazy">`:`<div class="storeIcon">🎯</div>`;
-    const rec=p.recommendation||'SEGUIR VIGILANDO';
-    const score=Number(p.cazador_score||0);
-    const high=Number(p.highest_price||0), low=Number(p.best_price||0), diff=high&&low?high-low:0;
-    const rows=offers.slice(0,4).map((o,j)=>{
-      const price=Number(o.current_price||0), isBest=price&&low&&price===low;
-      const link=o.outbound_url?`<a class="go" style="padding:8px 10px" href="${esc(o.outbound_url)}" target="_blank" rel="noopener noreferrer">Ver</a>`:'<span class="disabled" style="padding:8px 10px">Sin precio</span>';
-      return `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #eaecf0"><div><b style="font-size:12px">${esc(o.store)}</b><br><small style="color:#667085">${isBest?'Mejor precio actual':'Oferta vinculada'}</small></div><b style="font-size:13px">${price?money(price):'—'}</b>${link}</div>`;
-    }).join('');
-    return `<article class="card" style="grid-column:span 2"><div class="visual">${image}<span class="badge">PRODUCTO MAESTRO</span><span class="source">${p.priced_stores||0} tienda(s) con precio</span></div><div class="body"><span class="kind">${esc(p.brand||'Producto')}</span><h3 style="min-height:auto;font-size:18px">${esc(p.canonical_name)}</h3>${low?`<div class="old" style="text-decoration:none">Mejor precio actual</div><div class="price">${money(low)}</div>`:'<div class="noPrice">Aún no tenemos precio confirmado</div>'}<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #eaecf0"><b style="color:${scoreTone(score)}">${decisionIcon(rec)} ${esc(rec)}</b><div style="font-size:12px;color:#475467;margin-top:3px">Cazador Score ${score}/100 · ${esc(p.explanation||'Seguimos reuniendo información.')}</div></div>${diff>0?`<div class="meta"><span>Diferencia entre tiendas: ${money(diff)}</span></div>`:''}<div style="margin-top:11px">${rows}</div><div class="actions"><button class="watch" onclick="prepareMasterWatch(${idx})">🔔 Vigilar producto</button>${best.outbound_url?`<a class="go" href="${esc(best.outbound_url)}" target="_blank" rel="noopener noreferrer">Mejor opción</a>`:'<span class="disabled">Sin compra</span>'}</div></div></article>`;
+    const rec=p.recommendation||'SEGUIR VIGILANDO',score=Number(p.cazador_score||0),high=Number(p.highest_price||0),low=Number(p.best_price||0),diff=high&&low?high-low:0;
+    const rows=offers.slice(0,5).map(o=>{const price=Number(o.current_price||0),isBest=price&&low&&price===low;const link=o.outbound_url?`<a class="go" style="padding:8px 10px" href="${esc(o.outbound_url)}" target="_blank" rel="noopener noreferrer">Ver</a>`:'<span class="disabled" style="padding:8px 10px">Sin precio</span>';return `<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid #eaecf0"><div><b style="font-size:12px">${esc(o.store)}</b><br><small style="color:#667085">${isBest?'Mejor precio actual':'Oferta vinculada'}</small></div><b style="font-size:13px">${price?money(price):'—'}</b>${link}</div>`}).join('');
+    const cat=p.category?`<div class="masterCategory">${esc(p.category.icon||'📂')} ${esc(p.category.name)}</div>`:'';
+    return `<article class="card" style="grid-column:span 2"><div class="visual">${image}<span class="badge">PRODUCTO MAESTRO</span><span class="source">${p.priced_stores||0} tienda(s) con precio</span></div><div class="body">${cat}<span class="kind">${esc(p.brand||'Producto')}${p.model?' · '+esc(p.model):''}</span><h3 style="min-height:auto;font-size:18px">${esc(p.canonical_name)}</h3>${low?`<div class="old" style="text-decoration:none">Mejor precio actual</div><div class="price">${money(low)}</div>`:'<div class="noPrice">Aún no tenemos precio confirmado</div>'}<div style="margin-top:10px;padding:10px 12px;border-radius:12px;background:#f8fafc;border:1px solid #eaecf0"><b style="color:${scoreTone(score)}">${decisionIcon(rec)} ${esc(rec)}</b><div style="font-size:12px;color:#475467;margin-top:3px">${low?`Cazador Score ${score}/100 · `:''}${esc(p.explanation||'Seguimos reuniendo información.')}</div></div>${diff>0?`<div class="meta"><span>Diferencia entre tiendas: ${money(diff)}</span></div>`:''}${rows?`<div style="margin-top:11px">${rows}</div>`:''}<div class="actions"><button class="watch" onclick="prepareMasterWatch(${idx})">🔔 Vigilar producto</button>${best.outbound_url?`<a class="go" href="${esc(best.outbound_url)}" target="_blank" rel="noopener noreferrer">Mejor opción</a>`:'<span class="disabled">Sin compra</span>'}</div></div></article>`;
   }
 
-  window.prepareMasterWatch=function(i){
-    const p=window.__cazadorMasters?.[i];if(!p)return;
-    ensureProductId();
-    document.querySelector('#watchProductId').value=p.product_id||'';
-    document.querySelector('#watchItem').value='';
-    document.querySelector('#watchProduct').value=p.canonical_name||lastQuery;
-    document.querySelector('#watchPrice').value=p.best_price?Math.round(Number(p.best_price)*.95):'';
-    document.querySelector('#alertas').scrollIntoView({behavior:'smooth'});
-    setTimeout(()=>document.querySelector('#watchPrice')?.focus(),350);
-  };
+  function renderMasters(masters,context='search'){
+    window.__cazadorMasters=masters;const priced=masters.filter(p=>Number(p.best_price)>0);
+    $('#modeTag').textContent=priced.length?'● PRODUCTOS COMPARADOS':'● PRODUCTOS IDENTIFICADOS';$('#modeTag').classList.toggle('catalogTag',!priced.length);
+    if(!masters.length){$('#grid').innerHTML=`<div class="empty"><strong>Esta sección está lista</strong>${context==='category'?'Todavía no tenemos Productos Maestros cargados en esta categoría. Se irán incorporando a medida que conectemos nuevas tiendas.':'No encontramos un Producto Maestro con suficiente confianza. Prueba con marca, modelo o una búsqueda más general.'}</div>`;return}
+    if(priced.length){const best=[...priced].sort((a,b)=>Number(a.best_price)-Number(b.best_price))[0];$('#bestText').textContent=`${best.canonical_name}: ${money(best.best_price)}`;$('#bestSaving').textContent=`${best.recommendation} · Score ${best.cazador_score}/100`;$('#compareBar').classList.add('show')}
+    $('#grid').innerHTML=masters.map(masterCard).join('');
+  }
+
+  window.prepareMasterWatch=function(i){const p=window.__cazadorMasters?.[i];if(!p)return;ensureProductId();$('#watchProductId').value=p.product_id||'';$('#watchItem').value='';$('#watchProduct').value=p.canonical_name||lastQuery;$('#watchPrice').value=p.best_price?Math.round(Number(p.best_price)*.95):'';$('#alertas').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('#watchPrice')?.focus(),350)};
+
+  function hideSuggest(){document.querySelector('#cazadorSuggest')?.classList.remove('show')}
+  function setupSuggest(){
+    const form=$('#searchForm'),input=$('#q');if(!form||!input)return;form.style.position='relative';
+    const box=document.createElement('div');box.id='cazadorSuggest';form.appendChild(box);
+    input.addEventListener('input',()=>{clearTimeout(suggestTimer);const q=input.value.trim();if(q.length<2){hideSuggest();return}suggestTimer=setTimeout(()=>loadSuggest(q),180)});
+    input.addEventListener('keydown',e=>{if(e.key==='Escape')hideSuggest()});
+    document.addEventListener('click',e=>{if(!form.contains(e.target))hideSuggest()});
+  }
+  async function loadSuggest(q){
+    try{const d=await api('/cazador-intelligence?mode=suggest&q='+encodeURIComponent(q));if($('#q').value.trim()!==q)return;const products=d.products||[],cats=d.categories||[],box=$('#cazadorSuggest');if(!products.length&&!cats.length){hideSuggest();return}let html='';if(products.length){html+='<div class="suggestTitle">Productos</div>'+products.map(p=>`<button type="button" class="suggestItem" data-product="${esc(p.name)}">${p.image_url?`<img class="suggestThumb" src="${esc(p.image_url)}" alt="">`:'<span class="suggestIcon">🎯</span>'}<span class="suggestText"><b>${esc(p.name)}</b><small>${esc([p.brand,p.model].filter(Boolean).join(' · ')||'Producto Maestro')}</small></span></button>`).join('')}if(cats.length){html+='<div class="suggestTitle">Categorías</div>'+cats.map(c=>`<button type="button" class="suggestItem" data-category="${esc(c.slug)}" data-category-name="${esc(c.name)}"><span class="suggestIcon">${esc(c.icon||'📂')}</span><span class="suggestText"><b>${esc(c.name)}</b><small>Explorar categoría</small></span></button>`).join('')}box.innerHTML=html;box.classList.add('show');box.querySelectorAll('[data-product]').forEach(b=>b.addEventListener('click',()=>{$('#q').value=b.dataset.product;hideSuggest();searchDeals()}));box.querySelectorAll('[data-category]').forEach(b=>b.addEventListener('click',()=>{hideSuggest();browseCategory(b.dataset.category,b.dataset.categoryName)}));}catch(e){hideSuggest()}
+  }
+
+  async function loadCategories(){
+    try{const d=await api('/cazador-intelligence?mode=categories');categoryCache=d.categories||[];renderCategories()}catch(e){console.warn('Categorías no disponibles',e)}
+  }
+  function renderCategories(){
+    let sec=$('#cazadorCategories');if(!sec){sec=document.createElement('section');sec.id='cazadorCategories';sec.className='cazCategories';document.querySelector('.trust')?.insertAdjacentElement('afterend',sec)}
+    const visible=allCategories?categoryCache:categoryCache.filter(c=>c.featured).slice(0,8);sec.innerHTML=`<div class="cazCategoriesIn"><div class="cazCategoriesHead"><div><h2>Explora por categoría</h2><div style="color:#667085;font-size:12px;margin-top:2px">Encuentra más rápido lo que quieres comprar.</div></div><button id="toggleCategories">${allCategories?'Ver principales':'Ver todas'}</button></div><div class="cazCategoryGrid">${visible.map(c=>`<button class="cazCategory" data-slug="${esc(c.slug)}" data-name="${esc(c.name)}"><span>${esc(c.icon||'📂')}</span>${esc(c.name)}${c.product_count?`<small>${c.product_count} producto(s)</small>`:'<small>Preparada</small>'}</button>`).join('')}</div></div>`;sec.querySelector('#toggleCategories')?.addEventListener('click',()=>{allCategories=!allCategories;renderCategories()});sec.querySelectorAll('.cazCategory').forEach(b=>b.addEventListener('click',()=>browseCategory(b.dataset.slug,b.dataset.name)));
+  }
+  window.browseCategory=async function(slug,name){lastQuery=name||slug;$('#q').value=name||slug;setLoading(true);$('#grid').innerHTML='';$('#resultInfo').classList.remove('show');$('#compareBar').classList.remove('show');try{const intel=await api('/cazador-intelligence?category='+encodeURIComponent(slug));const masters=intel.products||[];$('#resultInfo').textContent=`Categoría: ${name||slug}. Cazador muestra Productos Maestros confirmados y mantiene las variantes separadas.`;$('#resultInfo').classList.add('show');renderMasters(masters,'category')}catch(e){$('#grid').innerHTML=`<div class="empty"><strong>No pudimos abrir la categoría</strong>${esc(e.message)}</div>`}finally{setLoading(false);$('#resultados').scrollIntoView({behavior:'smooth'})}};
 
   searchDeals=async function(){
-    const q=$('#q').value.trim();if(q.length<2){toast('Escribe el producto que quieres buscar.');return}
-    lastQuery=q;setLoading(true);$('#grid').innerHTML='';$('#resultInfo').classList.remove('show');$('#compareBar').classList.remove('show');
+    const q=$('#q').value.trim();if(q.length<2){toast('Escribe el producto que quieres buscar.');return}hideSuggest();lastQuery=q;setLoading(true);$('#grid').innerHTML='';$('#resultInfo').classList.remove('show');$('#compareBar').classList.remove('show');
     try{
-      const [meli,retail]=await Promise.all([
-        api('/meli-search?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,results:[]})),
-        publicApi('/retail-search?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,results:[]}))
-      ]);
-      const intel=await api('/cazador-intelligence?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,products:[]}));
-      const masters=intel.products||[];window.__cazadorMasters=masters;
-      if(masters.length){
-        const priced=masters.filter(p=>Number(p.best_price)>0);
-        $('#modeTag').textContent=priced.length?'● PRODUCTOS COMPARADOS':'● PRODUCTOS IDENTIFICADOS';
-        $('#modeTag').classList.toggle('catalogTag',!priced.length);
-        let note=`Cazador identificó ${masters.length} Producto(s) Maestro y agrupó las publicaciones equivalentes sin mezclar variantes.`;
-        if(retail?.unavailable?.length) note+=` ${retail.unavailable.map(x=>x.store).join(', ')} no entregó precio automático en esta revisión.`;
-        $('#resultInfo').textContent=note;$('#resultInfo').classList.add('show');
-        if(priced.length){const best=[...priced].sort((a,b)=>Number(a.best_price)-Number(b.best_price))[0];$('#bestText').textContent=`${best.canonical_name}: ${money(best.best_price)}`;$('#bestSaving').textContent=`${best.recommendation} · Score ${best.cazador_score}/100`;$('#compareBar').classList.add('show')}
-        $('#grid').innerHTML=masters.map(masterCard).join('');
-        return;
-      }
-      const merged=[];
-      (meli.results||[]).forEach(x=>merged.push({...x,store:'Mercado Libre',sourceKey:'mercadolibre',watchId:String(x.catalog_product_id||x.id),buyUrl:x.outbound_url||x.permalink||x.source_permalink}));
-      (retail.results||[]).forEach(x=>merged.push({...x,store:x.store,sourceKey:x.source,watchId:x.external_product_id,buyUrl:x.link_id?`${BASE}/cazador-outbound?id=${encodeURIComponent(x.link_id)}&source=search`:x.url,thumbnail:null,category_id:'Producto',score:0}));
-      lastResults=merged.sort((a,b)=>{const ap=Number(a.price||0),bp=Number(b.price||0);if(ap&&bp)return ap-bp;if(ap)return -1;if(bp)return 1;return 0});
-      render(lastResults,meli,retail);
-      $('#resultInfo').textContent='Encontramos publicaciones, pero Cazador todavía no tiene suficiente confianza para unirlas en un Producto Maestro. Se mantienen separadas para evitar comparaciones incorrectas.';$('#resultInfo').classList.add('show');
-    }catch(e){$('#grid').innerHTML=`<div class="empty"><strong>No pudimos completar la consulta</strong>${esc(e.message)}</div>`}
-    finally{setLoading(false);$('#resultados').scrollIntoView({behavior:'smooth'})}
+      const [meli,retail]=await Promise.all([api('/meli-search?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,results:[]})),publicApi('/retail-search?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,results:[]}))]);
+      const intel=await api('/cazador-intelligence?q='+encodeURIComponent(q)).catch(e=>({ok:false,error:e.message,products:[]}));const masters=intel.products||[];
+      if(masters.length){let note=`Cazador identificó ${masters.length} Producto(s) Maestro y agrupó publicaciones equivalentes sin mezclar variantes.`;if(retail?.unavailable?.length)note+=` ${retail.unavailable.map(x=>x.store).join(', ')} no entregó precio automático en esta revisión.`;$('#resultInfo').textContent=note;$('#resultInfo').classList.add('show');renderMasters(masters);return}
+      const merged=[];(meli.results||[]).forEach(x=>merged.push({...x,store:'Mercado Libre',sourceKey:'mercadolibre',watchId:String(x.catalog_product_id||x.id),buyUrl:x.outbound_url||x.permalink||x.source_permalink}));(retail.results||[]).forEach(x=>merged.push({...x,store:x.store,sourceKey:x.source,watchId:x.external_product_id,buyUrl:x.link_id?`${BASE}/cazador-outbound?id=${encodeURIComponent(x.link_id)}&source=search`:x.url,thumbnail:null,category_id:'Producto',score:0}));lastResults=merged.sort((a,b)=>{const ap=Number(a.price||0),bp=Number(b.price||0);if(ap&&bp)return ap-bp;if(ap)return-1;if(bp)return 1;return 0});render(lastResults,meli,retail);$('#resultInfo').textContent='Encontramos publicaciones, pero Cazador todavía no tiene suficiente confianza para unirlas en un Producto Maestro. Se mantienen separadas para evitar comparaciones incorrectas.';$('#resultInfo').classList.add('show');
+    }catch(e){$('#grid').innerHTML=`<div class="empty"><strong>No pudimos completar la consulta</strong>${esc(e.message)}</div>`}finally{setLoading(false);$('#resultados').scrollIntoView({behavior:'smooth'})}
   };
 
-  const oldPrepare=prepareWatch;
-  prepareWatch=function(i){ensureProductId();document.querySelector('#watchProductId').value='';oldPrepare(i)};
+  const oldPrepare=prepareWatch;prepareWatch=function(i){ensureProductId();$('#watchProductId').value='';oldPrepare(i)};
+  saveWatch=async function(){ensureProductId();const product=$('#watchProduct').value.trim(),raw=$('#watchPrice').value.replace(/[^0-9]/g,''),target=raw?Number(raw):null,item=$('#watchItem').value.trim()||null,productId=$('#watchProductId').value.trim()||null,email=$('#watchEmail').value.trim(),phone=normalizePhone($('#watchPhone').value),wantEmail=$('#chEmail').checked,wantWa=$('#chWhatsapp').checked;if(product.length<2){toast('Escribe el producto que quieres vigilar.');return}if(!wantEmail&&!wantWa){toast('Selecciona correo o WhatsApp.');return}if(wantEmail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Escribe un correo válido.');return}if(wantWa&&phone.length<11){toast('Escribe un WhatsApp válido con código de país.');return}const channels=[];if(wantEmail)channels.push('email');if(wantWa)channels.push('whatsapp');const channel=wantEmail&&wantWa?'email_whatsapp':wantWa?'whatsapp':'email',btn=$('#watchBtn');btn.disabled=true;btn.textContent='Guardando…';try{const r=await api('/cazador-watch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:product,item_id:item,product_id:productId,product_name:product,target_price:target,trigger_mode:target?'target_price':'great_deal',min_deal_score:80,source:'github-pages',email:wantEmail?email:null,phone:wantWa?phone:null,notify_channel:channel,notify_channels:channels})});toast(r.scope==='master_product'?'🎯 Producto Maestro en vigilancia: Cazador revisará sus tiendas asociadas.':'🎯 Seguimiento guardado.');$('#watchItem').value='';$('#watchProductId').value=''}catch(e){toast('No pudimos guardar el seguimiento: '+e.message)}finally{btn.disabled=false;btn.textContent='Poner en el Cazador'}};
 
-  saveWatch=async function(){
-    ensureProductId();
-    const product=$('#watchProduct').value.trim(),raw=$('#watchPrice').value.replace(/[^0-9]/g,''),target=raw?Number(raw):null,item=$('#watchItem').value.trim()||null,productId=$('#watchProductId').value.trim()||null,email=$('#watchEmail').value.trim(),phone=normalizePhone($('#watchPhone').value),wantEmail=$('#chEmail').checked,wantWa=$('#chWhatsapp').checked;
-    if(product.length<2){toast('Escribe el producto que quieres vigilar.');return}if(!wantEmail&&!wantWa){toast('Selecciona correo o WhatsApp.');return}if(wantEmail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Escribe un correo válido.');return}if(wantWa&&phone.length<11){toast('Escribe un WhatsApp válido con código de país.');return}
-    const channels=[];if(wantEmail)channels.push('email');if(wantWa)channels.push('whatsapp');const channel=wantEmail&&wantWa?'email_whatsapp':wantWa?'whatsapp':'email';const btn=$('#watchBtn');btn.disabled=true;btn.textContent='Guardando…';
-    try{const r=await api('/cazador-watch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:product,item_id:item,product_id:productId,product_name:product,target_price:target,trigger_mode:target?'target_price':'great_deal',min_deal_score:80,source:'github-pages',email:wantEmail?email:null,phone:wantWa?phone:null,notify_channel:channel,notify_channels:channels})});toast(r.scope==='master_product'?'🎯 Producto Maestro en vigilancia: Cazador revisará sus tiendas asociadas.':'🎯 Seguimiento guardado.');$('#watchItem').value='';$('#watchProductId').value=''}catch(e){toast('No pudimos guardar el seguimiento: '+e.message)}finally{btn.disabled=false;btn.textContent='Poner en el Cazador'}
-  };
+  setupSuggest();loadCategories();
 })();
